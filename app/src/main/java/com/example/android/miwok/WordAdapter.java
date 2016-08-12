@@ -1,8 +1,12 @@
 package com.example.android.miwok;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,13 +48,21 @@ public class WordAdapter extends ArrayAdapter {
         TextView textView2 = (TextView) listItemView.findViewById(R.id.text2);
         ImageView imageView = (ImageView) listItemView.findViewById(R.id.img);
         LinearLayout linearLayout = (LinearLayout) listItemView.findViewById(R.id.row);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,88);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,(int)getContext().getResources().getDimension(R.dimen.list_item_height));
         linearLayout.setLayoutParams(params);
         linearLayout.setBackgroundColor(ContextCompat.getColor(getContext(),currentWord.getWordType()));
         textView2.setText(currentWord.getEnglishWord());
         textView.setText(currentWord.getMiwokWord());
         textView.setTextAppearance(R.style.CategoryStyle);
         textView2.setTextColor(ContextCompat.getColor(getContext(),R.color.white_text_color));
+        ImageView playimageView = (ImageView) listItemView.findViewById(R.id.play_pause);
+        playimageView.setScaleType(ImageView.ScaleType.CENTER);
+        if(currentWord.getWordType() == R.color.category_phrases)
+        {
+            params.setMargins((int)getContext().getResources().getDimension(R.dimen.play_image_left_margin),0,0,0);
+        }
+        playimageView.setLayoutParams(params);
+
         if(currentWord.getImageResourceId() > -1)
         {
             imageView.setImageResource(currentWord.getImageResourceId());
