@@ -11,6 +11,16 @@ public class Word {
     int imageResID;
     int wordType;
 
+    public int getSong() {
+        return song;
+    }
+
+    public void setSong(int song) {
+        this.song = song;
+    }
+
+    int song;
+
     public int getWordType() {
         return wordType;
     }
@@ -26,12 +36,13 @@ public class Word {
         wordType=wordTyp;
     }
 
-    public Word(String english,String miwok,int imgid,int wordTyp) {
+    public Word(String english,String miwok,int imgid,int wordTyp,int songName) {
 
         englishWord = english;
         miwokWord = miwok;
         imageResID=imgid;
         wordType=wordTyp;
+        song=songName;
     }
 
     public String getEnglishWord() {
