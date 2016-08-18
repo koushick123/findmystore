@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.example.android.miwok.R;
 import com.example.android.miwok.Word;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -65,34 +66,48 @@ public class WordAdapter extends ArrayAdapter {
             params.setMargins((int)getContext().getResources().getDimension(R.dimen.play_image_left_margin),0,0,0);
         }
         playimageView.setLayoutParams(params);
-        final MediaPlayer mediaPlayer = MediaPlayer.create(getContext(),currentWord.getSong());
-        playimageView.setOnClickListener(new View.OnClickListener() {
+        playimageView.setOnClickListener(new View.OnClickListener()
+        {
+            MediaPlayer mediaPlayer = MediaPlayer.create(getContext(),currentWord.getSong());
             @Override
             public void onClick(View view) {
                 Log.d("Play == ",play+"");
                 if(!play)
                 {
-                    playimageView.setImageResource(R.drawable.ic_pause_black_24dp);
-                    Log.d("State == ",mediaPlayer.isPlaying()+"");
-                    Log.d("loop State == ",mediaPlayer.isLooping()+"");
-                    mediaPlayer.start();
-                    play = true;
-                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    if(!mediaPlayer.isPlaying())
+                    {
+                        playimageView.setImageResource(R.drawable.ic_pause_black_24dp);
+                        mediaPlayer.start();
+                        play = true;
+                    }
+
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
+                    {
                         @Override
                         public void onCompletion(MediaPlayer mediaPlayer)
                         {
                             playimageView.setImageResource(R.drawable.ic_play_arrow_black_24dp);
                             play = false;
+                            mediaPlayer.stop();
+                            try
+                            {
+                                mediaPlayer.prepare();
+                            }
+                            catch (IOException e)
+                            {
+                                e.printStackTrace();
+                            }
                         }
                     });
                 }
                 else
                 {
-                    playimageView.setImageResource(R.drawable.ic_play_arrow_black_24dp);
-                    Log.d("State 22 == ",mediaPlayer.isPlaying()+"");
-                    Log.d("loop State 22== ",mediaPlayer.isLooping()+"");
-                    mediaPlayer.pause();
-                    play = false;
+                    if(mediaPlayer.isPlaying())
+                    {
+                        playimageView.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+                        mediaPlayer.pause();
+                        play = false;
+                    }
                 }
             }
         });
