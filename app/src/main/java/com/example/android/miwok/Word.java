@@ -29,11 +29,12 @@ public class Word {
         this.wordType = wordType;
     }
 
-    public Word(String english, String miwok,int wordTyp) {
+    public Word(String english, String miwok,int wordTyp,int songName) {
 
         englishWord = english;
         miwokWord = miwok;
         wordType=wordTyp;
+        song=songName;
     }
 
     public Word(String english,String miwok,int imgid,int wordTyp,int songName) {

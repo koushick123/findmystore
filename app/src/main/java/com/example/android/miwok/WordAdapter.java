@@ -1,14 +1,10 @@
 package com.example.android.miwok;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.android.miwok.R;
-import com.example.android.miwok.Word;
 
 import java.io.IOException;
 import java.util.ArrayList;
