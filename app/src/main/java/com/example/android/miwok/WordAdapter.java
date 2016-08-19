@@ -58,51 +58,6 @@ public class WordAdapter extends ArrayAdapter {
             params.setMargins((int)getContext().getResources().getDimension(R.dimen.play_image_left_margin),0,0,0);
         }
         playimageView.setLayoutParams(params);
-        playimageView.setOnClickListener(new View.OnClickListener()
-        {
-            MediaPlayer mediaPlayer = MediaPlayer.create(getContext(),currentWord.getSong());
-            @Override
-            public void onClick(View view) {
-                Log.d("Play == ",play+"");
-                if(!play)
-                {
-                    if(!mediaPlayer.isPlaying())
-                    {
-                        playimageView.setImageResource(R.drawable.ic_pause_black_24dp);
-                        mediaPlayer.start();
-                        play = true;
-                    }
-
-                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
-                    {
-                        @Override
-                        public void onCompletion(MediaPlayer mediaPlayer)
-                        {
-                            playimageView.setImageResource(R.drawable.ic_play_arrow_black_24dp);
-                            play = false;
-                            mediaPlayer.stop();
-                            try
-                            {
-                                mediaPlayer.prepare();
-                            }
-                            catch (IOException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                }
-                else
-                {
-                    if(mediaPlayer.isPlaying())
-                    {
-                        playimageView.setImageResource(R.drawable.ic_play_arrow_black_24dp);
-                        mediaPlayer.pause();
-                        play = false;
-                    }
-                }
-            }
-        });
 
         if(currentWord.getImageResourceId() > -1)
         {

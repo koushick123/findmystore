@@ -15,20 +15,24 @@
  */
 package com.example.android.miwok;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
 public class FamilyActivity extends AppCompatActivity {
 
+    MediaPlayer mediaPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.word_list);
 
-        ArrayList<Word> family = new ArrayList<Word>();
+        final ArrayList<Word> family = new ArrayList<Word>();
         family.add(new Word("father", "әpә", R.drawable.family_father, R.color.category_family, R.raw.family_father));
         family.add(new Word("mother", "әṭa", R.drawable.family_mother, R.color.category_family, R.raw.family_mother));
         family.add(new Word("son", "angsi", R.drawable.family_son, R.color.category_family, R.raw.family_son));
@@ -43,5 +47,31 @@ public class FamilyActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.list);
         WordAdapter wordAdapter = new WordAdapter(this, family);
         listView.setAdapter(wordAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+            {
+                releaseMediaPlayer();
+                mediaPlayer = MediaPlayer.create(getApplicationContext(),family.get(i).getSong());
+                mediaPlayer.start();
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mediaPlayer)
+                    {
+                        releaseMediaPlayer();
+                    }
+                });
+            }
+        });
+    }
+
+    public void releaseMediaPlayer()
+    {
+        if(mediaPlayer != null)
+        {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 }
