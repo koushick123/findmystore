@@ -66,6 +66,12 @@ public class PhrasesActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        releaseMediaPlayer();
+    }
+
     public void releaseMediaPlayer()
     {
         if(mediaPlayer != null)
