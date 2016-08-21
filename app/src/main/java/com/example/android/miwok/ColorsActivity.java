@@ -59,16 +59,18 @@ public class ColorsActivity extends AppCompatActivity {
             {
                 mediaPlayer = MediaPlayer.create(getApplicationContext(),colors.get(position).getSong());
                 listener = new AudioFocusListener(mediaPlayer,audioManager);
-                audioManager.requestAudioFocus(listener, AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
-                mediaPlayer.start();
-                int currVolume=150;
-                mediaPlayer.setVolume(adjustVolume(currVolume), adjustVolume(currVolume));
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        releaseMediaPlayer();
-                    }
-                });
+                int result = audioManager.requestAudioFocus(listener, AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
+                if(result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    mediaPlayer.start();
+                    int currVolume = 150;
+                    mediaPlayer.setVolume(adjustVolume(currVolume), adjustVolume(currVolume));
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mediaPlayer) {
+                            releaseMediaPlayer();
+                        }
+                    });
+                }
             }
         });
     }
@@ -82,10 +84,7 @@ public class ColorsActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.d(""+NumbersActivity.class,"Stopping..."+listener+", "+audioManager);
-        if(audioManager != null && listener != null) {
-            audioManager.abandonAudioFocus(listener);
-            releaseMediaPlayer();
-        }
+        releaseMediaPlayer();
     }
 
     public void releaseMediaPlayer()
@@ -94,6 +93,9 @@ public class ColorsActivity extends AppCompatActivity {
         {
             mediaPlayer.release();
             mediaPlayer = null;
+            if(audioManager != null && listener != null) {
+                audioManager.abandonAudioFocus(listener);
+            }
         }
     }
 }

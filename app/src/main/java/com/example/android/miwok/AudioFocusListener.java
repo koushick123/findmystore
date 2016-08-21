@@ -2,6 +2,7 @@ package com.example.android.miwok;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.provider.MediaStore;
 import android.util.Log;
 
 /**
@@ -15,9 +16,9 @@ public class AudioFocusListener implements AudioManager.OnAudioFocusChangeListen
     int currVolume=10;
     AudioManager audioManager;
 
-    public AudioFocusListener(MediaPlayer mPlayer,AudioManager audioM) {
+    public AudioFocusListener(MediaPlayer mPlayer, AudioManager audioM) {
         mediaPlayer = mPlayer;
-        audioManager = audioM;
+        audioManager=audioM;
     }
 
     @Override
@@ -39,7 +40,6 @@ public class AudioFocusListener implements AudioManager.OnAudioFocusChangeListen
         {
             Log.d(""+AudioFocusListener.class,"Losing focus...");
             releaseMediaPlayer();
-            audioManager.abandonAudioFocus(this);
         }
         else if(focus == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK)
         {
@@ -48,12 +48,15 @@ public class AudioFocusListener implements AudioManager.OnAudioFocusChangeListen
         }
     }
 
-    private void releaseMediaPlayer()
+    public void releaseMediaPlayer()
     {
         if(mediaPlayer != null)
         {
             mediaPlayer.release();
             mediaPlayer = null;
+            if(audioManager != null) {
+                audioManager.abandonAudioFocus(this);
+            }
         }
     }
 

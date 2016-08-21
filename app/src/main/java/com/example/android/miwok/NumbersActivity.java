@@ -61,27 +61,20 @@ public class NumbersActivity extends AppCompatActivity {
             {
                 mediaPlayer = MediaPlayer.create(getApplicationContext(),numbers.get(position).getSong());
                 listener = new AudioFocusListener(mediaPlayer,audioManager);
-                audioManager.requestAudioFocus(listener,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
-                mediaPlayer.start();
-                int currVolume=150;
-                mediaPlayer.setVolume(adjustVolume(currVolume), adjustVolume(currVolume));
-                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        releaseMediaPlayer();
-                    }
-                });
+                int result = audioManager.requestAudioFocus(listener, AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
+                if(result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    mediaPlayer.start();
+                    int currVolume = 150;
+                    mediaPlayer.setVolume(adjustVolume(currVolume), adjustVolume(currVolume));
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mediaPlayer) {
+                            releaseMediaPlayer();
+                        }
+                    });
+                }
             }
         });
-    }
-
-    private void releaseMediaPlayer()
-    {
-        if(mediaPlayer != null)
-        {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
     }
 
     private float adjustVolume(int currentVol)
@@ -93,9 +86,18 @@ public class NumbersActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.d(""+NumbersActivity.class,"Stopping..."+listener+", "+audioManager);
-        if(audioManager != null && listener != null) {
-            audioManager.abandonAudioFocus(listener);
-            releaseMediaPlayer();
+        releaseMediaPlayer();
+    }
+
+    public void releaseMediaPlayer()
+    {
+        if(mediaPlayer != null)
+        {
+            mediaPlayer.release();
+            mediaPlayer = null;
+            if(audioManager != null && listener != null) {
+                audioManager.abandonAudioFocus(listener);
+            }
         }
     }
 }
