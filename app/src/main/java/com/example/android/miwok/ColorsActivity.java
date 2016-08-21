@@ -15,9 +15,12 @@
  */
 package com.example.android.miwok;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -27,6 +30,10 @@ import java.util.ArrayList;
 public class ColorsActivity extends AppCompatActivity {
 
     MediaPlayer mediaPlayer;
+    AudioManager audioManager;
+    AudioFocusListener listener;
+    final int MAX_VOLUME = 500;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,18 +52,20 @@ public class ColorsActivity extends AppCompatActivity {
         ListView listView = (ListView)findViewById(R.id.list);
         WordAdapter wordAdapter = new WordAdapter(this,colors);
         listView.setAdapter(wordAdapter);
-
+        audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l)
             {
-                releaseMediaPlayer();
-                mediaPlayer = MediaPlayer.create(getApplicationContext(),colors.get(i).getSong());
+                mediaPlayer = MediaPlayer.create(getApplicationContext(),colors.get(position).getSong());
+                listener = new AudioFocusListener(mediaPlayer,audioManager);
+                audioManager.requestAudioFocus(listener, AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
                 mediaPlayer.start();
+                int currVolume=150;
+                mediaPlayer.setVolume(adjustVolume(currVolume), adjustVolume(currVolume));
                 mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
-                    public void onCompletion(MediaPlayer mediaPlayer)
-                    {
+                    public void onCompletion(MediaPlayer mediaPlayer) {
                         releaseMediaPlayer();
                     }
                 });
@@ -64,10 +73,19 @@ public class ColorsActivity extends AppCompatActivity {
         });
     }
 
+    private float adjustVolume(int currentVol)
+    {
+        return (float) (1 - (Math.log(MAX_VOLUME - currentVol) / Math.log(MAX_VOLUME)));
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
-        releaseMediaPlayer();
+        Log.d(""+NumbersActivity.class,"Stopping..."+listener+", "+audioManager);
+        if(audioManager != null && listener != null) {
+            audioManager.abandonAudioFocus(listener);
+            releaseMediaPlayer();
+        }
     }
 
     public void releaseMediaPlayer()

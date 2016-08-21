@@ -15,19 +15,25 @@
  */
 package com.example.android.miwok;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class NumbersActivity extends AppCompatActivity {
 
     MediaPlayer mediaPlayer;
+    AudioManager audioManager;
+    AudioFocusListener listener;
+    final int MAX_VOLUME = 500;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,21 +51,23 @@ public class NumbersActivity extends AppCompatActivity {
         numbers.add(new Word("nine","wo'e",R.drawable.number_nine,R.color.category_numbers,R.raw.number_nine));
         numbers.add(new Word("ten","na'aacha",R.drawable.number_ten,R.color.category_numbers,R.raw.number_ten));
 
-        ListView listView = (ListView)findViewById(R.id.list);
+        final ListView listView = (ListView)findViewById(R.id.list);
         WordAdapter wordAdapter = new WordAdapter(this,numbers);
         listView.setAdapter(wordAdapter);
-
+        audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l)
             {
-                releaseMediaPlayer();
-                mediaPlayer = MediaPlayer.create(getApplicationContext(),numbers.get(i).getSong());
+                mediaPlayer = MediaPlayer.create(getApplicationContext(),numbers.get(position).getSong());
+                listener = new AudioFocusListener(mediaPlayer,audioManager);
+                audioManager.requestAudioFocus(listener,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
                 mediaPlayer.start();
+                int currVolume=150;
+                mediaPlayer.setVolume(adjustVolume(currVolume), adjustVolume(currVolume));
                 mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
-                    public void onCompletion(MediaPlayer mediaPlayer)
-                    {
+                    public void onCompletion(MediaPlayer mediaPlayer) {
                         releaseMediaPlayer();
                     }
                 });
@@ -67,18 +75,27 @@ public class NumbersActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        releaseMediaPlayer();
-    }
-
-    public void releaseMediaPlayer()
+    private void releaseMediaPlayer()
     {
         if(mediaPlayer != null)
         {
             mediaPlayer.release();
             mediaPlayer = null;
+        }
+    }
+
+    private float adjustVolume(int currentVol)
+    {
+        return (float) (1 - (Math.log(MAX_VOLUME - currentVol) / Math.log(MAX_VOLUME)));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(""+NumbersActivity.class,"Stopping..."+listener+", "+audioManager);
+        if(audioManager != null && listener != null) {
+            audioManager.abandonAudioFocus(listener);
+            releaseMediaPlayer();
         }
     }
 }
