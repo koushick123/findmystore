@@ -29,75 +29,12 @@ import java.util.ArrayList;
 
 public class FamilyActivity extends AppCompatActivity {
 
-    MediaPlayer mediaPlayer;
-    AudioManager audioManager;
-    AudioFocusListener listener;
-    final int MAX_VOLUME = 500;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.word_list);
-
-        final ArrayList<Word> family = new ArrayList<Word>();
-        family.add(new Word("father", "әpә", R.drawable.family_father, R.color.category_family, R.raw.family_father));
-        family.add(new Word("mother", "әṭa", R.drawable.family_mother, R.color.category_family, R.raw.family_mother));
-        family.add(new Word("son", "angsi", R.drawable.family_son, R.color.category_family, R.raw.family_son));
-        family.add(new Word("daughter", "tune", R.drawable.family_daughter, R.color.category_family, R.raw.family_daughter));
-        family.add(new Word("older brother", "taachi", R.drawable.family_older_brother, R.color.category_family, R.raw.family_older_brother));
-        family.add(new Word("younger brother", "chalitti", R.drawable.family_younger_brother, R.color.category_family, R.raw.family_younger_brother));
-        family.add(new Word("older sister", "teṭe", R.drawable.family_older_sister, R.color.category_family, R.raw.family_older_sister));
-        family.add(new Word("younger sister", "kolliti", R.drawable.family_younger_sister, R.color.category_family, R.raw.family_younger_sister));
-        family.add(new Word("grandmother", "ama", R.drawable.family_grandmother, R.color.category_family, R.raw.family_grandmother));
-        family.add(new Word("grandfather", "paapa", R.drawable.family_grandfather, R.color.category_family, R.raw.family_grandfather));
-
-        ListView listView = (ListView) findViewById(R.id.list);
-        WordAdapter wordAdapter = new WordAdapter(this, family);
-        listView.setAdapter(wordAdapter);
-        audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l)
-            {
-                mediaPlayer = MediaPlayer.create(getApplicationContext(),family.get(position).getSong());
-                listener = new AudioFocusListener(mediaPlayer,audioManager);
-                int result = audioManager.requestAudioFocus(listener, AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
-                if(result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                    mediaPlayer.start();
-                    int currVolume = 150;
-                    mediaPlayer.setVolume(adjustVolume(currVolume), adjustVolume(currVolume));
-                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mediaPlayer) {
-                            releaseMediaPlayer();
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    private float adjustVolume(int currentVol)
-    {
-        return (float) (1 - (Math.log(MAX_VOLUME - currentVol) / Math.log(MAX_VOLUME)));
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(""+NumbersActivity.class,"Stopping..."+listener+", "+audioManager);
-        releaseMediaPlayer();
-    }
-
-    public void releaseMediaPlayer()
-    {
-        if(mediaPlayer != null)
-        {
-            mediaPlayer.release();
-            mediaPlayer = null;
-            if(audioManager != null && listener != null) {
-                audioManager.abandonAudioFocus(listener);
-            }
-        }
+        setContentView(R.layout.activity_category);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new FamilyFragment())
+                .commit();
     }
 }
